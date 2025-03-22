@@ -1,0 +1,22 @@
+{
+    "thresholds": {
+        "cpu_usage": 90,
+        "memory_usage": 85,
+        "latency_ms": 200,
+        "disk_usage": 90,
+        "network_in_kbps": 10000,
+        "network_out_kbps": 10000,
+        "io_wait": 10,
+        "thread_count": 500,
+        "active_connections": 1000,
+        "error_rate": 0.05,
+        "uptime_seconds": 900000,
+        "temperature_celsius": 80,
+        "power_consumption_watts": 300,
+        "service_status": {
+            "database": "offline",
+            "api_gateway": "offline",
+            "cache": "offline"
+        }
+    }
+}
