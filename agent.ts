@@ -37,7 +37,8 @@ function shouldContinue({ messages }: typeof MessagesAnnotation.State) {
 
 async function callModel(state: typeof MessagesAnnotation.State) {
   const response = await model.invoke(state.messages);
-
+  console.clear();
+  console.log("Requesting an agent")
   return { messages: [response] };
 }
 async function analyze(state: typeof MessagesAnnotation.State) {
@@ -46,7 +47,7 @@ async function analyze(state: typeof MessagesAnnotation.State) {
   const response = await model.invoke([
     ...state.messages,
     new HumanMessage(
-      "Analyze the provided values and compare them against the thresholds object. Identify only those values that exceed the defined thresholds or are considered dangerous. If no values exceed a critical threshold or are considered dangerous, respond only with 'R.A.S.'. Here's the treshold : " +
+      "Analyze the provided values and compare them against the thresholds object. Identify only those values that exceed the defined thresholds, are offline or are considered dangerous. If no values exceed a critical threshold or are considered dangerous, respond only with 'R.A.S.'. Here's the treshold : " +
         treshold
     ),
   ]);
@@ -55,11 +56,11 @@ async function analyze(state: typeof MessagesAnnotation.State) {
 
 async function recommendations(state: typeof MessagesAnnotation.State) {
   console.clear();
-  console.log("Generating recommendations...");
+  console.log("Critical value(s) found.\nGenerating recommendations...");
   const response = await model.invoke([
     ...state.messages,
     new HumanMessage(
-      "Tell me how many objects were analyzed, how many values per categories were considered dangerous or exceeded the tresholds and give me recommendations on how to correct those values. I want it in this format : The category | number of exceedances | 2 to 3 exemples of the highest values exceeding. Then under this line write a recommendation. Here's an exemple :  Disk Usage | Total Exceedances: 6 instances exceeded 90%. | Highest Values**: 90%, 94%, 96%.' \n - Recommendation: Regularly monitor disk usage and implement data archiving strategies to free up space. Consider upgrading to larger disks or implementing a more efficient storage solution to handle high disk usage. Add at the end,and don't write anything else"
+      "Tell me how many objects were analyzed, how many values per categories were considered dangerous or exceeded the tresholds and give me recommendations on how to correct those values. I want it in this format : The category (and each service status if needed) | number of problems | 2 to 3 exemples of the highest values exceeding(unless it's offline). Then under this line write a recommendation. Here's an exemple :  Disk Usage | Total Exceedances: 6 instances exceeded 90%. | Highest Values**: 90%, 94%, 96%.' \n - Recommendation: Regularly monitor disk usage and implement data archiving strategies to free up space. Consider upgrading to larger disks or implementing a more efficient storage solution to handle high disk usage. Add at the end,and don't write anything else"
     ),
   ]);
   console.clear();
@@ -111,7 +112,6 @@ const workflow = new StateGraph(MessagesAnnotation)
   .addNode("tools", toolNode)
   .addEdge("tools", "agent")
   .addConditionalEdges("agent", shouldContinue)
-  .addEdge("recommendations", "__end__");
 
 const app = workflow.compile();
 
