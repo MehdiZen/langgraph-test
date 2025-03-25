@@ -1,3 +1,9 @@
+/**
+ - TypeScript : Robustesse, maintenabilité et lecture du code
+ - LangGraph : workflow modulaire (récuperation de données -> analyse -> recommandation)
+ - OpenAI GPT-4 : Bas coût, léger, assez intelligent pour la tâche, réponses concises, compatibilité/integration avec LangChain
+**/
+
 import "dotenv/config";
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 import { ChatOpenAI } from "@langchain/openai";
@@ -89,7 +95,7 @@ async function asktheman(): Promise<string> {
     rl.question(
       "No issues found. Everything is normal.\nWould you still like to have recommendations? Y/N: ",
       (answer) => {
-        answer = answer.toLowerCase();
+        answer = answer.trim().toLowerCase();
         if (answer == "yes" || answer == "y") {
           resolve("recommendations");
         } else if (answer == "no" || answer == "n") {
